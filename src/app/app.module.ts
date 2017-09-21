@@ -40,10 +40,7 @@ import { AngularFireModule } from 'angularfire2';
     SIDEBAR_TOGGLE_DIRECTIVES,
     AsideToggleDirective
   ],
-  providers: [{
-    provide: LocationStrategy,
-    useClass: HashLocationStrategy
-  }, AngularFireDatabase, AngularFireAuth],
+  providers: [AngularFireDatabase, AngularFireAuth],
   bootstrap: [ AppComponent ]
 })
 export class AppModule { }
