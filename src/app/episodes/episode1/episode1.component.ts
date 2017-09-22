@@ -1,8 +1,9 @@
+import { observable } from 'rxjs/symbol/observable';
 import { Component, OnInit } from '@angular/core';
 import { AngularFireDatabase } from 'angularfire2/database';
 import {Observable} from 'rxjs/Rx'
 import * as firebase from 'firebase/app';
-import 'rxjs/Rx'
+import 'rxjs/Rx';
 
 @Component({
   selector: 'app-episode1',
@@ -30,6 +31,13 @@ export class Episode1Component  {
   }
 
   example3() {
+
+    let observable1 = Observable.interval(1000).take(5);
+    let observable2 = Observable.interval(500).take(5);
+
+    observable1.merge(observable2).subscribe(val => console.log(val));
+
+
     // Merging multiple tables into a single entity WITHOUT MergeMap
     this.afDB.object('/fight-event/-KHQ228-Hdin5naJrusf')
         .map((fightEventObj: {}) => {
@@ -42,16 +50,37 @@ export class Episode1Component  {
         })
 
       //// Merging multiple tables into a single entity WITHOUT MergeMap
-      this.afDB.object('/fight-event/-KHQ228-Hdin5naJrusf')
-        .map((fightEventObj: {}) => {
-          return Array<{}>(fightEventObj['fighters']).map(fighter => {
-            console.log(fighter)
-            return Object.keys(fighter);
-          }).map(fighterKey => this.afDB.object('/user/ ' + fighterKey))
-        }).flatMap(observables => observables).flatMap(observables => observables).subscribe(x => {
-          console.log('Merging multiple tables into a single entity WITH MergeMap');
-          console.log(x)
-        });
+      // this.afDB.object('/fight-event/-KHQ228-Hdin5naJrusf')
+      //     .map((fightEventObj: {}) => { 
+      //         return Array<{}>(fightEventObj['fighters'])
+      //           .map(fighterObjects => Object.keys(fighterObjects))
+      //           .map(fighterKeys =>  {
+      //           return fighterKeys.map(fighterKey => {
+      //             console.log(fighterKey);
+      //             return this.afDB.object('/user/ ' + fighterKey)
+      //           }); 
+      //         })
+      //       })
+      //     .flatMap(observables => observables)
+      //     .flatMap(observables => observables)
+      //     .subscribe(x => {
+      //     console.log('Merging multiple tables into a single entity WITH MergeMap');
+      //     console.log(x)
+      //     x.subscribe(x=>console.log(x));
+      //   });
+
+        this.afDB.object('/fight-event/-KHQ228-Hdin5naJrusf')
+          .map((fightEventObj: {}) => {
+              return Object.keys(fightEventObj['fighters'])
+                .map((fighterKey: string) => this.afDB.object('/user/'+ fighterKey))
+          })
+          .mergeMap(x=>x)
+          .mergeMap(x=>x)
+          .subscribe(x => {
+            console.log('Merging multiple tables into a single entity WITH MergeMap');
+            console.log(x)
+          });
+            
   }
 }
 
